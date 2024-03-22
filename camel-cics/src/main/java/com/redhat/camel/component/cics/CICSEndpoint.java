@@ -21,11 +21,9 @@ import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.support.DefaultEndpoint;
-// Apache Camel 2.15
-// import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
+import org.apache.camel.support.DefaultEndpoint;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.UnsafeUriCharactersEncoder;
 import org.slf4j.Logger;
@@ -36,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  * A CICS Endpoint is defined by the next pattern:<br/>
  * 
- * <code>cics://host[:port]/serverName[?options]</code>
+ * <code>cics://interfaceType[?options]</code>
  * 
  * @author Sergio Gutierrez (sgutierr@redhat.com)
  * @author Jose Roman Martin Gil (rmarting@redhat.com)
@@ -48,8 +46,17 @@ public class CICSEndpoint extends DefaultEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CICSEndpoint.class);
 
+
     @UriParam
     private CICSConfiguration configuration;
+
+
+
+    public CICSEndpoint(String endpointUri, CICSComponent component, CICSConfiguration configuration) {
+        super(UnsafeUriCharactersEncoder.encode(endpointUri), component);
+        LOGGER.info("New CICS Endpoint with endpointUri: {}", endpointUri);
+        this.configuration = configuration;
+    }
 
     /**
      * Constructs a fully-initialized {@link CICSEndpoint} instance
@@ -92,6 +99,8 @@ public class CICSEndpoint extends DefaultEndpoint {
     public Consumer createConsumer(Processor processor) throws Exception {
         throw new UnsupportedOperationException("You cannot receive messages from this endpoint");
     }
+
+
 
     /**
      * This implementation is singleton and this method returns true.

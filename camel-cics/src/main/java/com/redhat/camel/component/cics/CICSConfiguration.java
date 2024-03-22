@@ -1,21 +1,23 @@
 /**
  * Copyright 2014 Red Hat, Inc.
- *
+ * <p>
  * Red Hat licenses this file to you under the Apache License, version
  * 2.0 (the "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
- *
  */
 package com.redhat.camel.component.cics;
 
+import com.ibm.ctg.client.JavaGateway;
+import com.redhat.camel.component.cics.pool.CICSGatewayFactory;
+import com.redhat.camel.component.cics.pool.CICSSingleGatewayFactory;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
@@ -25,11 +27,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Properties;
 
 import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_ECI_TIMEOUT;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_SOCKET_TIMEOUT;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_SERVER_PORT;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_ENCODING;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_INTERFACE_TYPE;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_SERVER_PORT;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_SOCKET_TIMEOUT;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_ECI_INTERFACE_TYPE;
+import static com.redhat.camel.component.cics.CICSConstants.GW_PROTOCOL_TCP;
 
 
 /**
@@ -40,15 +46,19 @@ public class CICSConfiguration implements Cloneable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CICSConfiguration.class);
 
-    @UriPath(description = "The address of the CICS Transaction Gateway that this instance connects to")
+    @UriPath(description = "The interface type, can be eci, esi or epi. at the moment only eci is supported.")
+    @Metadata(required = true)
+    private String interfaceType = CICS_DEFAULT_INTERFACE_TYPE;
+
+    @UriParam(description = "The address of the CICS Transaction Gateway that this instance connects to")
     @Metadata(required = true)
     private String host;
 
-    @UriPath(description = "The port of the CICS Transaction Gateway that this instance connects to.", defaultValue = CICS_DEFAULT_SERVER_PORT +"")
+    @UriParam(description = "The port of the CICS Transaction Gateway that this instance connects to.", defaultValue = CICS_DEFAULT_SERVER_PORT + "")
     @Metadata(required = true)
     private int port = CICS_DEFAULT_SERVER_PORT;
 
-    @UriPath(description = "The address of the CICS Transaction Gateway that this instance connects to")
+    @UriParam(description = "The address of the CICS server that this instance connects to")
     @Metadata(required = true)
     private String server;
 
@@ -65,25 +75,52 @@ public class CICSConfiguration implements Cloneable {
     @UriParam(description = "The full classname of the SSL key ring class or keystore file to be used for the client encrypted connection", label = "advanced, security")
     private String sslKeyring;
 
-    @UriParam(description = "Enable debug mode on the underlying IBM CGT client.",  defaultValue = "false")
+    @UriParam(description = "Enable debug mode on the underlying IBM CGT client.", defaultValue = "false")
     private Boolean ctgDebug = Boolean.FALSE;
 
     @Metadata
     @UriParam(description = "The transfer encoding of the message.", defaultValue = CICS_DEFAULT_ENCODING)
     private String encoding = CICS_DEFAULT_ENCODING; // "Cp285";
 
-    @UriParam(description = "The socket connection timeout", label = "advanced", defaultValue = CICS_DEFAULT_SOCKET_TIMEOUT +"")
+    @UriParam(description = "The socket connection timeout", label = "advanced", defaultValue = CICS_DEFAULT_SOCKET_TIMEOUT + "")
     private int socketConnectionTimeout;
 
     @Metadata
-    @UriParam(defaultValue = CICS_DEFAULT_ECI_TIMEOUT +"",
+    @UriParam(defaultValue = CICS_DEFAULT_ECI_TIMEOUT + "",
             description = "The ECI timeout value associated with this ECIRequest object. An ECI timeout value of zero indicates that "
-                         + "this ECIRequest will not be timed out by CICS Transaction Gateway. An ECI timeout value greater than zero "
-                         + "indicates that the ECIRequest may be timed out by CICS Transaction Gateway. ECI timeout can expire before "
-                         + "a response is received from CICS. This means that the client does not receive the confirmation from CICS "
-                         + "that a unit of work has been backed out or committed."
+                    + "this ECIRequest will not be timed out by CICS Transaction Gateway. An ECI timeout value greater than zero "
+                    + "indicates that the ECIRequest may be timed out by CICS Transaction Gateway. ECI timeout can expire before "
+                    + "a response is received from CICS. This means that the client does not receive the confirmation from CICS "
+                    + "that a unit of work has been backed out or committed."
     )
     private short eciTimeout;
+
+    @Metadata
+    @UriParam(defaultValue = GW_PROTOCOL_TCP, description = "the protocol that this component will use to connect to the CICS Transaction Gateway.")
+    private String protocol;
+
+    @Metadata
+    @UriParam(description = "The connection factory to be use")
+    private CICSGatewayFactory gatewayFactory;
+
+    @UriParam(description = "The Binding instance to transform a Camel Exchange to EciRequest and vice versa")
+    private CICSEciBinding eciBinding;
+
+
+    public CICSEciBinding getOrCreateEciBinding() {
+        if (this.eciBinding == null) {
+            this.eciBinding = new CICSDefaultEciBinding();
+        }
+        return this.eciBinding;
+    }
+
+    public CICSEciBinding getEciBinding() {
+        return eciBinding;
+    }
+
+    public void setEciBinding(CICSDefaultEciBinding eciBinding) {
+        this.eciBinding = eciBinding;
+    }
 
     public short getEciTimeout() {
         return eciTimeout;
@@ -93,7 +130,43 @@ public class CICSConfiguration implements Cloneable {
         this.eciTimeout = eciTimeout;
     }
 
+    public String getProtocol() {
+        return protocol;
+    }
 
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public CICSGatewayFactory getOrCreateGatewayFactory() {
+        if (this.gatewayFactory == null) {
+            CICSSingleGatewayFactory newGatewayFactory = new CICSSingleGatewayFactory();
+            newGatewayFactory.setProtocol(GW_PROTOCOL_TCP);
+            newGatewayFactory.setHost(host);
+            newGatewayFactory.setPort(port);
+            newGatewayFactory.setInitialFlow(false);
+            newGatewayFactory.setSocketConnectionTimeout(socketConnectionTimeout);
+            Properties properties = new Properties();
+
+            if (sslKeyring != null) {
+                properties.setProperty(JavaGateway.SSL_PROP_KEYRING_CLASS, sslKeyring);
+                if (sslPassword != null) {
+                    properties.setProperty(JavaGateway.SSL_PROP_KEYRING_PW, sslPassword);
+                }
+            }
+            newGatewayFactory.setProtocolProperties(properties);
+            setGatewayFactory(newGatewayFactory);
+        }
+        return this.gatewayFactory;
+    }
+
+    public CICSGatewayFactory getGatewayFactory() {
+        return gatewayFactory;
+    }
+
+    public void setGatewayFactory(CICSGatewayFactory gatewayFactory) {
+        this.gatewayFactory = gatewayFactory;
+    }
 
     /**
      * Other parameters
@@ -104,33 +177,23 @@ public class CICSConfiguration implements Cloneable {
     public CICSConfiguration() {
     }
 
-    protected void parseURI(String remaining){
-        String address;
+    protected void parseURI(String remaining) {
+        String interfaceType;
         String[] split = remaining.split("/");
         if (split.length > 0) {
-             address = split[0];
+            interfaceType = split[0];
         } else {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("");
         }
         if (split.length > 1) {
-            this.server= split[1];
-        } else {
             throw new IllegalArgumentException();
         }
-
-        String[] addressSplit = address.split(":");
-        if (addressSplit.length > 0) {
-            this.host = addressSplit[0];
-        } else {
-            throw new IllegalArgumentException();
-        }
-        if (addressSplit.length > 1) {
-            this.port = Integer.parseInt(addressSplit[1]);
-        } else {
-            LOGGER.debug("Port not provided. Fallback to default port :" + CICS_DEFAULT_SERVER_PORT);
+        if (interfaceType != null && !interfaceType.trim().equalsIgnoreCase(CICS_ECI_INTERFACE_TYPE)){
+            throw new IllegalArgumentException("Interface "+interfaceType+" not supported");
         }
 
     }
+
 
     public CICSConfiguration copy() {
         try {
@@ -231,4 +294,13 @@ public class CICSConfiguration implements Cloneable {
     public void setSocketConnectionTimeout(int socketConnectionTimeout) {
         this.socketConnectionTimeout = socketConnectionTimeout;
     }
+
+    public String getInterfaceType() {
+        return interfaceType;
+    }
+
+    public void setInterfaceType(String interfaceType) {
+        this.interfaceType = interfaceType;
+    }
+
 }
