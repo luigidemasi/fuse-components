@@ -16,17 +16,15 @@
  */
 package com.redhat.camel.component.cics;
 
-import java.util.Map;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.annotations.Component;
 import org.apache.camel.support.DefaultComponent;
-import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.UnsafeUriCharactersEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * CICS component to invoke programs running on CICS Transaction Gateway systems.
@@ -51,7 +49,6 @@ public class CICSComponent extends DefaultComponent {
         super(context);
 
         this.configuration = new CICSConfiguration();
-        registerExtension(new CICSComponentVerifierExtension("cics"));
     }
 
     /**

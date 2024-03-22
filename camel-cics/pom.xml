@@ -40,7 +40,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <slf4j-api-version>2.0.12.redhat-00001</slf4j-api-version>
-        <cgtclient-version>9.3</cgtclient-version>
+        <cgtclient-version>9.2</cgtclient-version>
         <camel-version>4.4.0.redhat-00009</camel-version>
         <jdk.version>17</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
@@ -53,19 +53,20 @@
         <!-- Apache Camel -->
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-api</artifactId>
+            <artifactId>camel-core-model</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-support</artifactId>
+            <artifactId>camel-api</artifactId>
         </dependency>
 
-        <!-- CTG v.9.3 -->
+        <!-- CTG v.9.2 -->
         <dependency>
             <groupId>com.ibm</groupId>
             <artifactId>ctgclient</artifactId>
             <version>${cgtclient-version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Logging -->
@@ -73,6 +74,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-api-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>${commons-pool2-version}</version>
         </dependency>
 
         <!-- Testing -->
