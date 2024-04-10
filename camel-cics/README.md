@@ -7,7 +7,7 @@ Build
 To be able to build the component, you have to add the IBM CTG client jar file into your local Maven repository using:
 
 --
-mvn install:install-file -DgroupId=com.ibm.ctg -DartifactId=ctgclient -Dversion=9.3 -Dpackaging=jar -Dfile=/path/to/ctg.jar
+mvn install:install-file -DgroupId=com.ibm -DartifactId=ctgclient -Dversion=9.2 -Dpackaging=jar -Dfile=/path/to/ctg.jar
 --
 
 Then, you can use the regular:
