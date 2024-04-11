@@ -118,7 +118,7 @@ public class CICSConfiguration implements Cloneable {
         return eciBinding;
     }
 
-    public void setEciBinding(CICSDefaultEciBinding eciBinding) {
+    public void setEciBinding(CICSEciBinding eciBinding) {
         this.eciBinding = eciBinding;
     }
 

@@ -137,4 +137,12 @@ public class CICSEndpoint extends DefaultEndpoint {
         builder.append("]");
         return builder.toString();
     }
+
+    public CICSConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(CICSConfiguration configuration) {
+        this.configuration = configuration;
+    }
 }
