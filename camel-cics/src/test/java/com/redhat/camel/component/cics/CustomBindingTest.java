@@ -1,6 +1,7 @@
 package com.redhat.camel.component.cics;
 
 import com.ibm.ctg.client.ECIRequest;
+import com.redhat.camel.component.cics.binding.CICSCommAreaEciBinding;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.spi.Registry;
@@ -39,19 +40,16 @@ public class CustomBindingTest extends AbstractCICSTest{
             ex.getMessage().setHeader(CICS_PROGRAM_NAME_HEADER, "ECIREADY");
             ex.getMessage().setHeader(CICS_COMM_AREA_SIZE_HEADER, "18");
         });
-
         assertEquals(expectedHeaderValue, returned.getMessage().getHeader(expectedHeaderName,String.class));
     }
 
 
     @Override
-    protected String getOptions() {
-        int  CTG_PORT = ctgContainer.getMappedPort(2006);
-        String CTG_HOST =  ctgContainer.getHost();
-        return "?host="+CTG_HOST+"&port="+CTG_PORT+"&protocol=tcp&eciBinding=#customBinding";
+    protected String getOptions(String host, int port){
+        return "?host="+host+"&port="+port+"&protocol=tcp&eciBinding=#customBinding";
     }
 
-    class CustomEciBinding extends CICSDefaultEciBinding{
+    class CustomEciBinding extends CICSCommAreaEciBinding {
         public void toExchange(ECIRequest request, Exchange exchange, int iRc, CICSConfiguration configuration) throws UnsupportedEncodingException {
             super.toExchange(request, exchange, iRc, configuration);
             exchange.getMessage().setHeader(expectedHeaderName, expectedHeaderValue);

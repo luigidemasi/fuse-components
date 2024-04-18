@@ -16,8 +16,11 @@
 package com.redhat.camel.component.cics;
 
 import com.ibm.ctg.client.JavaGateway;
+import com.redhat.camel.component.cics.binding.CICSChannelEciBinding;
+import com.redhat.camel.component.cics.binding.CICSCommAreaEciBinding;
 import com.redhat.camel.component.cics.pool.CICSGatewayFactory;
 import com.redhat.camel.component.cics.pool.CICSSingleGatewayFactory;
+import com.redhat.camel.component.cics.support.CICSDataExchangeType;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
@@ -36,6 +39,8 @@ import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_SERVER_
 import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_SOCKET_TIMEOUT;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_ECI_INTERFACE_TYPE;
 import static com.redhat.camel.component.cics.CICSConstants.GW_PROTOCOL_TCP;
+import static com.redhat.camel.component.cics.support.CICSDataExchangeType.CHANNEL;
+import static com.redhat.camel.component.cics.support.CICSDataExchangeType.COMMAREA;
 
 
 /**
@@ -68,7 +73,7 @@ public class CICSConfiguration implements Cloneable {
     @UriParam(description = "Password to use for authentication", label = "security", secret = true)
     private String password;
 
-    @UriParam(description = "The password for the encrypted key ring class or keystore", label = "advanced, security")
+    @UriParam(description = "The password for the encrypted key ring class or keystore", label = "advanced, security", secret = true)
     @Metadata
     private String sslPassword;
 
@@ -106,16 +111,22 @@ public class CICSConfiguration implements Cloneable {
     @UriParam(description = "The Binding instance to transform a Camel Exchange to EciRequest and vice versa")
     private CICSEciBinding eciBinding;
 
+    @UriPath(defaultValue = "commarea", description = "Use channel instead of commarea data structure")
+    private CICSDataExchangeType dataExchangeType = COMMAREA;
 
     public CICSEciBinding getOrCreateEciBinding() {
         if (this.eciBinding == null) {
-            this.eciBinding = new CICSDefaultEciBinding();
+            if(dataExchangeType == CHANNEL) {
+                this.eciBinding = new CICSChannelEciBinding();
+            }else {
+                this.eciBinding = new CICSCommAreaEciBinding();
+            }
         }
         return this.eciBinding;
     }
 
     public CICSEciBinding getEciBinding() {
-        return eciBinding;
+        return getOrCreateEciBinding();
     }
 
     public void setEciBinding(CICSEciBinding eciBinding) {
@@ -182,16 +193,17 @@ public class CICSConfiguration implements Cloneable {
         String[] split = remaining.split("/");
         if (split.length > 0) {
             interfaceType = split[0];
+            if (interfaceType != null && !interfaceType.trim().equalsIgnoreCase(CICS_ECI_INTERFACE_TYPE)){
+                throw new IllegalArgumentException("Interface "+interfaceType+" not supported");
+            } else{
+                this.interfaceType = interfaceType;
+            }
         } else {
             throw new IllegalArgumentException("");
         }
         if (split.length > 1) {
-            throw new IllegalArgumentException();
+            this.dataExchangeType = CICSDataExchangeType.fromValue(split[1]);
         }
-        if (interfaceType != null && !interfaceType.trim().equalsIgnoreCase(CICS_ECI_INTERFACE_TYPE)){
-            throw new IllegalArgumentException("Interface "+interfaceType+" not supported");
-        }
-
     }
 
 
@@ -303,4 +315,11 @@ public class CICSConfiguration implements Cloneable {
         this.interfaceType = interfaceType;
     }
 
+    public CICSDataExchangeType getDataExchangeType() {
+        return dataExchangeType;
+    }
+
+    public void setDataExchangeType(CICSDataExchangeType dataExchangeType) {
+        this.dataExchangeType = dataExchangeType;
+    }
 }

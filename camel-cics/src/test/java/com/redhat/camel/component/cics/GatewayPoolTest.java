@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,5 +48,4 @@ public class GatewayPoolTest {
         );
         assertEquals(expectedMessage,thrown.getMessage());
     }
-
 }

@@ -25,28 +25,11 @@ import static com.redhat.camel.component.cics.CICSConstants.CICS_RC_HEADER;
 import static org.apache.camel.ExchangePattern.InOut;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public abstract class AbstractCICSTest extends CamelTestSupport {
+public abstract class AbstractCICSTest extends AbstractCICSContainerizedTest {
 
     public static final Logger LOG = LoggerFactory.getLogger(AbstractCICSTest.class);
 
-    protected final static Network network = Network.newNetwork();
-    /** CTG Server */
     protected static final String CTG_SERVER = "cics_server_name";
-
-    protected static final GenericContainer<?> ctgContainer = new GenericContainer<>("images.paas.redhat.com/fuseqe/ibm-cicstg-container-linux-x86-trial:9.3")
-            .withEnv("LICENSE","accept")
-            .withNetwork(network)
-            .withNetworkAliases("cgt")
-            .withExposedPorts(2006, 2810)
-            .withCopyFileToContainer(MountableFile.forClasspathResource("ctg.ini"), "/var/cicscli/ctg.ini")
-            .waitingFor(Wait.forLogMessage(".*CTG6512I CICS Transaction Gateway initialization complete.*",1))
-            .withStartupTimeout(Duration.ofSeconds(60L));
-
-
-    protected void doPreSetup() throws Exception {
-        ctgContainer.start();
-    }
-
 
     @Test
     public void testECIREADY() throws Exception {
@@ -85,16 +68,15 @@ public abstract class AbstractCICSTest extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:test")
-                        .log("CTG Endpoing: cics://eci"+getOptions())
+                        .log("CTG Endpoing: cics://eci"+getOptions(CTG_HOST,CTG_PORT))
                         .log("Calling ${headers.programName} Program")
-                        .to("cics:eci"+getOptions())
+                        .to("cics:eci"+getOptions(CTG_HOST,CTG_PORT))
                         .log("Called ${headers.programName} Program")
                         .to("mock:result");
             }
         };
     }
 
-
-    protected abstract String getOptions();
+    protected abstract String getOptions(String host, int port);
 
 }

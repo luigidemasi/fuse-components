@@ -1,11 +1,9 @@
 package com.redhat.camel.component.cics;
 
-import com.redhat.camel.component.cics.AbstractCICSTest;
 import com.redhat.camel.component.cics.pool.CICSSingleGatewayFactory;
 import org.apache.camel.spi.Registry;
 
 public class SingleCoonectionFactoryTest extends AbstractCICSTest {
-
 
     @Override
     protected void bindToRegistry(Registry registry) throws Exception {
@@ -18,8 +16,9 @@ public class SingleCoonectionFactoryTest extends AbstractCICSTest {
         registry.bind("factory", factory);
     }
 
+
     @Override
-    protected String getOptions() {
+    protected String getOptions(String host, int port) {
         return "?gatewayFactory=#factory";
     }
 }

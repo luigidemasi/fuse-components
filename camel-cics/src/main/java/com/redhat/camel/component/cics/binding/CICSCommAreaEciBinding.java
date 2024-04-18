@@ -1,6 +1,8 @@
-package com.redhat.camel.component.cics;
+package com.redhat.camel.component.cics.binding;
 
 import com.ibm.ctg.client.ECIRequest;
+import com.redhat.camel.component.cics.CICSConfiguration;
+import com.redhat.camel.component.cics.CICSEciBinding;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.slf4j.Logger;
@@ -11,14 +13,17 @@ import java.util.Optional;
 
 import static com.redhat.camel.component.cics.CICSConstants.CICS_ABEND_CODE_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_COMM_AREA_SIZE_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_EXTEND_MODE_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_LUW_TOKEN_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_PROGRAM_NAME_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_REQUEST_BODY_TYPE_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_REQUEST_BODY_TYPE_STRING;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_RETURN_CODE_STRING_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_SERVER_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_TRANSACTION_ID_HEADER;
 
-public class CICSDefaultEciBinding implements CICSEciBinding{
-    private static final Logger LOGGER = LoggerFactory.getLogger(CICSDefaultEciBinding.class);
+public class CICSCommAreaEciBinding implements CICSEciBinding {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CICSCommAreaEciBinding.class);
 
 
     private byte[] getBytes(String source, String encoding) throws java.io.UnsupportedEncodingException {
@@ -31,9 +36,13 @@ public class CICSDefaultEciBinding implements CICSEciBinding{
     public ECIRequest toECIRequest(Exchange exchange, CICSConfiguration configuration) throws UnsupportedEncodingException {
         Message inMessage = exchange.getMessage();
         // Program Headers: programName, transactionID and commAreaSize
+        int commAreaSize = Optional.ofNullable(inMessage.getHeader(CICS_COMM_AREA_SIZE_HEADER, Integer.class)).orElse(-1);
         String programName = inMessage.getHeader(CICS_PROGRAM_NAME_HEADER, String.class);
         String transactionId = inMessage.getHeader(CICS_TRANSACTION_ID_HEADER, String.class);
-        Integer commAreaSize = Optional.ofNullable(inMessage.getHeader(CICS_COMM_AREA_SIZE_HEADER, Integer.class)).orElse(-1);
+        String server = Optional.ofNullable(inMessage.getHeader(CICS_SERVER_HEADER, String.class)).orElse(configuration.getServer());
+        int luw = Optional.ofNullable(inMessage.getHeader(CICS_LUW_TOKEN_HEADER, Integer.class)).orElse(ECIRequest.ECI_LUW_NEW);
+        int extended = Optional.ofNullable(inMessage.getHeader(CICS_EXTEND_MODE_HEADER, Integer.class)).orElse(ECIRequest.ECI_NO_EXTEND);
+
 
         // Input CommArea Data from Exchange
         Object commArea = inMessage.getBody();
@@ -54,23 +63,23 @@ public class CICSDefaultEciBinding implements CICSEciBinding{
             LOGGER.warn("Run Transaction with data format not available. Defining Default CommArea with size: {}", byteCommArea.length);
         }
 
-        return new ECIRequest(configuration.getServer(), // CICS Server
+        return new ECIRequest(
+                ECIRequest.ECI_SYNC,
+                server, // CICS Server
                 configuration.getUserId(), // UserId, null for none
                 configuration.getPassword(), // Password, null for none
                 programName, // Program name
+                transactionId, //transactionId
                 byteCommArea, // COMMAREA
-                ECIRequest.ECI_NO_EXTEND, ECIRequest.ECI_LUW_NEW);
+                commAreaSize,
+                luw,
+                extended);
     }
 
 
     public void toExchange(ECIRequest request, Exchange exchange, int iRc, CICSConfiguration configuration) throws UnsupportedEncodingException {
         Message message = exchange.getMessage();
-        message.setHeader(CICSConstants.CICS_RETURN_CODE_HEADER, request.getCicsRc());
-        message.setHeader(CICSConstants.CICS_RETURN_CODE_STRING_HEADER, request.getCicsRcString());
-        message.setHeader(CICSConstants.CICS_RC_HEADER, request.getRc());
-        message.setHeader(CICSConstants.CICS_RC_STRING_HEADER, request.getRcString());
-        message.setHeader(CICSConstants.CICS_LUW_TOKEN_HEADER, request.Luw_Token);
-        message.setHeader(CICSConstants.CICS_EXTEND_MODE_HEADER, request.Extend_Mode);
+        setResponseHeaders(message,request);
 
 
         if (iRc == 0) {
