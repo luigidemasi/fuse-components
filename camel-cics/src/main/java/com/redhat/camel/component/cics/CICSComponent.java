@@ -21,6 +21,7 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.annotations.Component;
 import org.apache.camel.support.DefaultComponent;
+import org.apache.camel.util.URISupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class CICSComponent extends DefaultComponent {
      */
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        LOGGER.info("Creating CICS Endpoint with uri: {}", uri);
+        LOGGER.info("Creating CICS Endpoint with uri: {}", URISupport.sanitizeUri(uri));
 
         CICSConfiguration config;
         if (configuration != null) {
@@ -69,11 +70,7 @@ public class CICSComponent extends DefaultComponent {
 
         setProperties(config, parameters);
         config.parseURI(remaining);
-
         CICSEndpoint cicsEndpoint = new CICSEndpoint(uri, this, config);
-
-        LOGGER.info("Created CICS Endppoint");
-
         return cicsEndpoint;
     }
 

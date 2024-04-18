@@ -25,6 +25,7 @@ import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.support.DefaultEndpoint;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.URISupport;
 import org.apache.camel.util.UnsafeUriCharactersEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author Jose Roman Martin Gil (rmarting@redhat.com)
  * @author Luigi De Masi (ldemasi@redhat.com)
  */
-@UriEndpoint(firstVersion = "4.4-redhat", scheme = "cics", title = "CICS", syntax = "cics:host[:port]/server[?options]",
+@UriEndpoint(firstVersion = "4.4-redhat", scheme = "cics", title = "CICS", syntax = "cics://interfaceType[?options]",
         producerOnly = true, category = {Category.SAAS})
 public class CICSEndpoint extends DefaultEndpoint {
 
@@ -54,7 +55,7 @@ public class CICSEndpoint extends DefaultEndpoint {
 
     public CICSEndpoint(String endpointUri, CICSComponent component, CICSConfiguration configuration) {
         super(UnsafeUriCharactersEncoder.encode(endpointUri), component);
-        LOGGER.info("New CICS Endpoint with endpointUri: {}", endpointUri);
+        LOGGER.info("New CICS Endpoint with endpointUri: {}", URISupport.sanitizeUri(endpointUri));
         this.configuration = configuration;
     }
 
@@ -69,7 +70,7 @@ public class CICSEndpoint extends DefaultEndpoint {
 
     public CICSEndpoint(String endpointUri, Component component, CICSConfiguration configuration) {
         super(UnsafeUriCharactersEncoder.encode(endpointUri), component);
-        LOGGER.info("New CICS Endpoint with endpointUri: {}", endpointUri);
+        LOGGER.info("New CICS Endpoint with endpointUri: {}", URISupport.sanitizeUri(endpointUri));
         this.configuration = configuration;
     }
 

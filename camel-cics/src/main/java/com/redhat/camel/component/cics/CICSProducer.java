@@ -72,6 +72,7 @@ public class CICSProducer extends DefaultProducer {
         }
 
         ECIRequest request = configuration.getOrCreateEciBinding().toECIRequest(exchange, configuration);
+        request.Commarea_Length = 32768;
         CICSGatewayFactory gf = configuration.getOrCreateGatewayFactory();
         try (CICSGateway gw = gf.createGateway()) {
             gw.open();

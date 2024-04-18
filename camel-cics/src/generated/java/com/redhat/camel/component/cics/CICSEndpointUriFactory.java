@@ -15,14 +15,15 @@ import org.apache.camel.spi.EndpointUriFactory;
  */
 public class CICSEndpointUriFactory extends org.apache.camel.support.component.EndpointUriFactorySupport implements EndpointUriFactory {
 
-    private static final String BASE = ":host[:port]/server[?options]";
+    private static final String BASE = "://interfaceType[?options]";
 
     private static final Set<String> PROPERTY_NAMES;
     private static final Set<String> SECRET_PROPERTY_NAMES;
     private static final Set<String> MULTI_VALUE_PREFIXES;
     static {
-        Set<String> props = new HashSet<>(16);
+        Set<String> props = new HashSet<>(17);
         props.add("ctgDebug");
+        props.add("dataExchangeType");
         props.add("eciBinding");
         props.add("eciTimeout");
         props.add("encoding");
@@ -39,8 +40,9 @@ public class CICSEndpointUriFactory extends org.apache.camel.support.component.E
         props.add("sslPassword");
         props.add("userId");
         PROPERTY_NAMES = Collections.unmodifiableSet(props);
-        Set<String> secretProps = new HashSet<>(2);
+        Set<String> secretProps = new HashSet<>(3);
         secretProps.add("password");
+        secretProps.add("sslPassword");
         secretProps.add("userId");
         SECRET_PROPERTY_NAMES = Collections.unmodifiableSet(secretProps);
         MULTI_VALUE_PREFIXES = Collections.emptySet();
@@ -59,6 +61,7 @@ public class CICSEndpointUriFactory extends org.apache.camel.support.component.E
         Map<String, Object> copy = new HashMap<>(properties);
 
         uri = buildPathParameter(syntax, uri, "interfaceType", null, true, copy);
+        uri = buildPathParameter(syntax, uri, "dataExchangeType", "commarea", false, copy);
         uri = buildQueryParameters(uri, copy, encode);
         return uri;
     }

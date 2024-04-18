@@ -26,9 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * It is needed to change the properties CTG_XXX to test successfully
- * 
- * @author Sergio Gutierrez (sgutierr@redhat.com)
- * @author Jose Roman Martin Gil (rmarting@redhat.com)
+ *
  * @author Luigi De Masi (ldemasi@redhat.com)
  *
  */
@@ -44,6 +42,7 @@ public class PooledConnectionFactoryTest extends AbstractCICSTest {
 		factory.setHost(CTG_HOST);
 		factory.setPort(CTG_PORT);
 		factory.setProtocol("tcp");
+		//factory.setSer
 		CICSPooledGatewayFactory gatewayPool = new CICSPooledGatewayFactory(factory);
 		gatewayPool.setMaxTotal(50);
 		gatewayPool.setMinIdle(25);
@@ -54,7 +53,7 @@ public class PooledConnectionFactoryTest extends AbstractCICSTest {
 	}
 
 	@Override
-	protected String getOptions() {
+	protected String getOptions(String host, int port) {
 		return "?gatewayFactory=#factory";
 	}
 }
