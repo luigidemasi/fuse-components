@@ -33,7 +33,7 @@ for this component:
 
 [NOTE]
 ====
-Only synchronous mode call are supported
+Only synchronous mode call are supported.
 ====
 
 == URI format
@@ -42,9 +42,9 @@ Only synchronous mode call are supported
 cics://[interfaceType]/[dataExchangeType][?options]
 --------------------------------------------
 
-Where `interfaceType` is the CICS set of external API that this component will invoke.
+Where `interfaceType` is the CICS set of the external API that this component will invoke.
 At the moment, only ECI (External Call Interface) is supported.
-This component can communicate with CICS server using two kind `dataExchangeType`
+This component can communicate with CICS server using two kinds of `dataExchangeType`
 
 * `commarea` is a block of storage, limited to 32763 bytes, allocated by the program.
 * `channel` is the new mechanism for exchanging data, analogous to a parameter list.
@@ -61,7 +61,7 @@ to be sent to the server and large enough to contain all the information that
 can be returned from the server.
 ====
 
-To use `cheannel` and container you must specify it explicitly in the URI
+To use `channel` and container you must specify it explicitly in the URI
 
 --------------------------------------------
 cics://eci/channel?host=xxx&port=xxx...
@@ -77,7 +77,7 @@ include::component-endpoint-headers.adoc[]
 == Samples
 
 
-=== Use commarea
+=== Use Commarea
 
 In the following sample we configure a route that run a program on a CICS server
 using COMMAREA:
@@ -125,7 +125,7 @@ value is the output data of the container.
 === Use Channel with multiple input container
 
 If you need to run a CICS program that takes multiple container as input, you can create
-a `java.util.Map<String,Object>` where the keys are the containers name and the values are the input data.
+a `java.util.Map<String,Object>` where the keys are the container names and the values are the input data.
 In this case the `CICS_CONTAINER_NAME` header is ignored.
 
 [source,java]
