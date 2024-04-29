@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 
 import static com.redhat.camel.component.cics.CICSConstants.CICS_COMM_AREA_SIZE_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_ENCODING_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_PROGRAM_NAME_HEADER;
 import static org.apache.camel.ExchangePattern.InOut;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,10 +40,11 @@ public class CustomBindingTest extends AbstractCICSTest{
         Exchange returned = template.send("direct:test", InOut, ex->{
             ex.getMessage().setHeader(CICS_PROGRAM_NAME_HEADER, "ECIREADY");
             ex.getMessage().setHeader(CICS_COMM_AREA_SIZE_HEADER, "18");
+            ex.getMessage().setHeader(CICS_ENCODING_HEADER, "IBM367");
+            ex.getMessage().setBody("Hello from Camel!");
         });
         assertEquals(expectedHeaderValue, returned.getMessage().getHeader(expectedHeaderName,String.class));
     }
-
 
     @Override
     protected String getOptions(String host, int port){

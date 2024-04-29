@@ -85,7 +85,7 @@ public class CICSConfiguration implements Cloneable {
     private Boolean ctgDebug = Boolean.FALSE;
 
     @Metadata
-    @UriParam(description = "The transfer encoding of the message.", defaultValue = CICS_DEFAULT_ENCODING)
+    @UriParam(description = "Encoding to convert COMMAREA data to before sending.", defaultValue = CICS_DEFAULT_ENCODING)
     private String encoding = CICS_DEFAULT_ENCODING; // "Cp285";
 
     @UriParam(description = "The socket connection timeout", label = "advanced", defaultValue = CICS_DEFAULT_SOCKET_TIMEOUT + "")

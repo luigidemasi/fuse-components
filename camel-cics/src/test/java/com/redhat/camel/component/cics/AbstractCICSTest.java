@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.HexFormat;
 import java.util.Map;
 
 import static com.redhat.camel.component.cics.CICSConstants.CICS_COMM_AREA_SIZE_HEADER;
@@ -53,6 +52,8 @@ public abstract class AbstractCICSTest extends AbstractCICSContainerizedTest {
         LOG.info("response: {}", new String((byte[]) ex.getIn().getBody(),CICS_DEFAULT_ENCODING));
         Assertions.assertEquals(0, ex.getIn().getHeader(CICS_RETURN_CODE_HEADER));
     }
+
+
 
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {

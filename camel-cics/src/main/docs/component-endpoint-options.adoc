@@ -70,8 +70,8 @@ Enum value: +
 | ctgDebug                | Enable debug mode on the underlying IBM CGT client. | false        | java.lang.Boolean
 | eciBinding              | The Binding instance to transform a Camel Exchange to EciRequest and vice versa |              | com.redhat.camel.component.cics.CICSEciBinding
 | eciTimeout              | The ECI timeout value associated with this ECIRequest object. An ECI timeout value of zero indicates that this ECIRequest will not be timed out by CICS Transaction Gateway. An ECI timeout value greater than zero indicates that the ECIRequest may be timed out by CICS Transaction Gateway. ECI timeout can expire before a response is received from CICS. This means that the client does not receive the confirmation from CICS that a unit of work has been backed out or committed. | 0            | short
-| encoding                | The transfer encoding of the message.  | Cp1145       | java.lang.String
-| gatewayFactory          | The connection factory to be use  |              | com.redhat.camel.component.cics.pool.CICSGatewayFactory
+| encoding                | Encoding to convert COMMAREA data to before sending.  | Cp1145       | java.lang.String
+| gatewayFactory          | The connection factory to use  |              | com.redhat.camel.component.cics.pool.CICSGatewayFactory
 | host                    | The address of the CICS Transaction Gateway that this instance connects to  |    localhost          | java.lang.String
 | port                    | The port of the CICS Transaction Gateway that this instance connects to.  | 2006         | int
 | protocol                | the protocol that this component will use to connect to the CICS Transaction Gateway.  | tcp          | java.lang.String

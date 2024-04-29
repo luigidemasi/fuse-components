@@ -27,6 +27,7 @@ public class AbstractCICSContainerizedTest  extends CamelTestSupport {
                     .waitingFor(Wait.forLogMessage(".*CTG6512I CICS Transaction Gateway initialization complete.*",1))
                     .withStartupTimeout(Duration.ofSeconds(60L));
 
+    @Override
     protected void doPreSetup() throws Exception {
         ctgContainer.start();
     }
