@@ -13,5 +13,4 @@ public class CustomBindingWithDataExchange extends CustomBindingTest {
     protected String getOptions(String host, int port) {
         return "/commarea?host="+host+"&port="+port+"&protocol=tcp&eciBinding=#customBinding&userId=foo&password=bar";
     }
-
 }

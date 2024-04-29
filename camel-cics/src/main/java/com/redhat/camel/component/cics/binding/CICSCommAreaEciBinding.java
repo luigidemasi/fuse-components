@@ -14,26 +14,17 @@ import java.util.Optional;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_ABEND_CODE_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_COMM_AREA_SIZE_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_ECI_REQUEST_TIMEOUT_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_ENCODING_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_EXTEND_MODE_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_LUW_TOKEN_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_PROGRAM_NAME_HEADER;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_REQUEST_BODY_TYPE_BYTE;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_REQUEST_BODY_TYPE_HEADER;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_REQUEST_BODY_TYPE_STRING;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_RETURN_CODE_STRING_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_SERVER_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_TRANSACTION_ID_HEADER;
+import static com.redhat.camel.component.cics.support.CICSUtils.getBytes;
 
 public class CICSCommAreaEciBinding implements CICSEciBinding {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CICSCommAreaEciBinding.class);
-
-
-    private byte[] getBytes(String source, String encoding) throws java.io.UnsupportedEncodingException {
-        if (null != encoding) {
-            return source.getBytes(encoding);
-        }
-        return source.getBytes();
-    }
 
     public ECIRequest toECIRequest(Exchange exchange, CICSConfiguration configuration) throws UnsupportedEncodingException {
         Message inMessage = exchange.getMessage();
@@ -45,20 +36,19 @@ public class CICSCommAreaEciBinding implements CICSEciBinding {
         String server = Optional.ofNullable(inMessage.getHeader(CICS_SERVER_HEADER, String.class)).orElse(configuration.getServer());
         int luw = Optional.ofNullable(inMessage.getHeader(CICS_LUW_TOKEN_HEADER, Integer.class)).orElse(ECIRequest.ECI_LUW_NEW);
         int extended = Optional.ofNullable(inMessage.getHeader(CICS_EXTEND_MODE_HEADER, Integer.class)).orElse(ECIRequest.ECI_NO_EXTEND);
+        String encoding = Optional.ofNullable(inMessage.getHeader(CICS_ENCODING_HEADER, String.class)).orElse(configuration.getEncoding());
 
 
         // Input CommArea Data from Exchange
         Object commArea = inMessage.getBody();
         byte[] byteCommArea;
 
-
         if (commArea instanceof String) {
-            exchange.getMessage().setHeader(CICS_REQUEST_BODY_TYPE_HEADER, CICS_REQUEST_BODY_TYPE_STRING);
-            byteCommArea = stringToBytesCommArea((String) commArea, commAreaSize, configuration);
+            byteCommArea = stringToBytesCommArea((String) commArea, commAreaSize, encoding);
         } else if (commArea instanceof byte[]) {
-            exchange.getMessage().setHeader(CICS_REQUEST_BODY_TYPE_HEADER, CICS_REQUEST_BODY_TYPE_BYTE);
             byteCommArea = (byte[]) commArea;
         } else {
+            LOGGER.warn("Body is not type of String or byte[]");
             if (commAreaSize > 0) {
                 byteCommArea = new byte[commAreaSize];
             } else {
@@ -82,7 +72,6 @@ public class CICSCommAreaEciBinding implements CICSEciBinding {
         if(eciRequestTimeout != null) {
             request.setECITimeout(eciRequestTimeout);
         }
-
         return request;
     }
 
@@ -91,14 +80,8 @@ public class CICSCommAreaEciBinding implements CICSEciBinding {
         Message message = exchange.getMessage();
         setResponseHeaders(message,request);
 
-
         if (iRc == 0) {
             LOGGER.debug("Flow executed successfully");
-            if(request.Commarea != null &&
-                    CICS_RETURN_CODE_STRING_HEADER.equals(message.getHeader(CICS_REQUEST_BODY_TYPE_HEADER))){
-                message.setBody(new String(request.Commarea , configuration.getEncoding()));
-                return;
-            }
             message.setBody(request.Commarea);
             return;
         }
@@ -122,18 +105,18 @@ public class CICSCommAreaEciBinding implements CICSEciBinding {
     }
 
 
-    private byte[] stringToBytesCommArea(String inputCommArea, int commAreaSize, CICSConfiguration configuration) throws UnsupportedEncodingException {
+    private byte[] stringToBytesCommArea(String inputCommArea, int commAreaSize, String encoding) throws UnsupportedEncodingException {
         byte[] byteCommArea;
         if (commAreaSize > 0) {
             byteCommArea = new byte[commAreaSize];
             if (inputCommArea != null) {
                 // Calls local getBytes function to extract byte array in either ASCII or unconverted form.
-                System.arraycopy(getBytes(inputCommArea, configuration.getEncoding()), 0, byteCommArea, 0,
+                System.arraycopy(getBytes(inputCommArea, encoding), 0, byteCommArea, 0,
                         Math.min(byteCommArea.length, inputCommArea.length()));
             }
         } else if (inputCommArea != null) {
             // Calls local getBytes function to extract byte array in either ASCII or unconverted form.
-            byteCommArea = getBytes(inputCommArea, configuration.getEncoding());
+            byteCommArea = getBytes(inputCommArea,encoding);
         } else {
             byteCommArea = new byte[commAreaSize];
         }

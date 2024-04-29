@@ -26,6 +26,14 @@ public interface CICSConstants {
     int    CICS_DEFAULT_SOCKET_TIMEOUT    = 0;
     short CICS_DEFAULT_ECI_TIMEOUT        = 0;
 
+    /** TCP Protocol */
+    String GW_PROTOCOL_TCP = "tcp";
+
+    // INTERFACES
+    String CICS_ECI_INTERFACE_TYPE = "eci";
+    String CICS_DEFAULT_INTERFACE_TYPE = CICS_ECI_INTERFACE_TYPE;
+
+    // Headers
     @Metadata(label = "producer", description = "Return code from this flow operation", javaType = "int")
     String CICS_RETURN_CODE_HEADER = "CICS_RETURN_CODE";
 
@@ -33,12 +41,9 @@ public interface CICSConstants {
             +"NOTE: for CICS return codes that may have more than one meaning the String returned is a concatenation of the return codes. The only concatenated String is: ECI_ERR_REQUEST_TIMEOUT_OR_ERR_NO_REPLY.", javaType = "java.ang.String")
     String CICS_RETURN_CODE_STRING_HEADER = "CICS_RETURN_CODE_STRING";
 
-    @Metadata(label = "producer", description = "The type of the object in the Camel body that will be used as commarea in the Eci request. " +
-            "Possible values are CICS_REQUEST_BODY_STRING or CICS_REQUEST_BODY_BYTE", applicableFor={"commarea"},  javaType = "java.lang.String")
-    String CICS_REQUEST_BODY_TYPE_HEADER = "CICS_REQUEST_BODY_TYPE";
-
     @Metadata(label = "producer", description = "Extend mode of request. The default value is ECI_NO_EXTEND", javaType = "int")
     String CICS_EXTEND_MODE_HEADER = "CICS_EXTEND_MODE";
+
     @Metadata(label = "producer", description = "Extended Logical Unit of Work token. The default value is ECI_LUW_NEW", javaType = "int")
     String CICS_LUW_TOKEN_HEADER = "CICS_LUW_TOKEN";
 
@@ -74,13 +79,7 @@ public interface CICSConstants {
     @Metadata(label = "producer", description = "The value, in seconds, of the ECI timeout for the current ECIRequest. A value of zero indicates that this ECIRequest will not be timed out by CICS Transaction Gateway", defaultValue = "0", javaType = "short")
     String CICS_ECI_REQUEST_TIMEOUT_HEADER = "CICS_ECI_REQUEST_TIMEOUT";
 
-
-    /** TCP Protocol */
-    String GW_PROTOCOL_TCP = "tcp";
-    // INTERFACES
-    String CICS_ECI_INTERFACE_TYPE = "eci";
-    String CICS_DEFAULT_INTERFACE_TYPE = CICS_ECI_INTERFACE_TYPE;
-    String CICS_REQUEST_BODY_TYPE_STRING = "CICS_REQUEST_BODY_STRING";
-    String CICS_REQUEST_BODY_TYPE_BYTE = "CICS_REQUEST_BODY_BYTE";
+    @Metadata(label = "producer", description = "The value, in seconds, of the ECI timeout for the current ECIRequest. A value of zero indicates that this ECIRequest will not be timed out by CICS Transaction Gateway", defaultValue = "0", javaType = "short")
+    String CICS_ENCODING_HEADER = "CICS_ENCODING";
 
 }

@@ -44,6 +44,8 @@ Constant: com.redhat.camel.component.cics.CICSConstants#CICS_PASSWORD_HEADER | P
 Constant:  com.redhat.camel.component.cics.CICSConstants#CICS_ABEND_CODE_HEADER | CICS transaction abend code. |             | java.lang.String
 | CICS_ECI_REQUEST_TIMEOUT  +
 Constant:   com.redhat.camel.component.cics.CICSConstants#CICS_ECI_REQUEST_TIMEOUT_HEADER | The value, in seconds, of the ECI timeout for the current ECIRequest. A value of zero indicates that this ECIRequest will not be timed out by CICS Transaction Gateway  | 0            | short
+| CICS_ENCODING +
+Constant:   com.redhat.camel.component.cics.CICSConstants#CICS_ENCODING_HEADER | Encoding to convert COMMAREA data to before sending.  |             | String
 |===
 
 // component headers: END
