@@ -79,7 +79,7 @@ public interface CICSConstants {
     @Metadata(label = "producer", description = "The value, in seconds, of the ECI timeout for the current ECIRequest. A value of zero indicates that this ECIRequest will not be timed out by CICS Transaction Gateway", defaultValue = "0", javaType = "short")
     String CICS_ECI_REQUEST_TIMEOUT_HEADER = "CICS_ECI_REQUEST_TIMEOUT";
 
-    @Metadata(label = "producer", description = "The value, in seconds, of the ECI timeout for the current ECIRequest. A value of zero indicates that this ECIRequest will not be timed out by CICS Transaction Gateway", defaultValue = "0", javaType = "short")
+    @Metadata(label = "producer", description = "Encoding to convert COMMAREA data to before sending the request.", javaType = "java.lang.String")
     String CICS_ENCODING_HEADER = "CICS_ENCODING";
 
 }

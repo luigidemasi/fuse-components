@@ -1,9 +1,7 @@
 package com.redhat.camel.component.cics;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.ExchangePattern;
 import org.apache.camel.component.mock.MockEndpoint;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -17,7 +15,7 @@ import static com.redhat.camel.component.cics.CICSConstants.CICS_ENCODING_HEADER
 import static com.redhat.camel.component.cics.CICSConstants.CICS_PROGRAM_NAME_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_RETURN_CODE_HEADER;
 import static java.lang.Thread.sleep;
-import static org.apache.camel.ExchangePattern.*;
+import static org.apache.camel.ExchangePattern.InOut;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CustomEncodingTest extends AbstractCICSTest {
