@@ -19,6 +19,7 @@ import java.util.Optional;
 import static com.ibm.ctg.client.ECIRequest.ECI_LUW_NEW;
 import static com.ibm.ctg.client.ECIRequest.ECI_NO_EXTEND;
 import static com.ibm.ctg.client.ECIRequest.ECI_SYNC;
+import static com.ibm.ctg.client.ECIReturnCodes.ECI_NO_ERROR;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_CHANNEL_CCSID_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_CHANNEL_NAME_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_CONTAINER_NAME_HEADER;
@@ -117,24 +118,31 @@ public class CICSChannelEciBinding implements CICSEciBinding {
         Message message = exchange.getMessage();
         setResponseHeaders(message, request);
 
-        if (!request.hasChannel()) {
-            LOGGER.debug("TxId: {} Program Name: {}  did not return a channel. Return code number: {} Return code String: {}",
-                    request.Transid, request.Program, request.getCicsRc(), request.getRcString());
-            return;
-        }
+        if (iRc == ECI_NO_ERROR) {
 
-        Map<String, Object> containers = new HashMap<>();
+            if (!request.hasChannel()) {
+                LOGGER.debug("TxId: {} Program Name: {}  did not return a channel. Return code number: {} Return code String: {}",
+                        request.Transid, request.Program, request.getCicsRc(), request.getRcString());
+                message.setBody(null);
+                return;
+            }
 
-        for (Container cont : request.getChannel().getContainers()) {
-            switch (cont.getType()) {
-                case CHAR -> {
-                    containers.put(cont.getName(), cont.getCHARData());
-                }
-                case BIT -> {
-                    containers.put(cont.getName(), cont.getBITData());
+            Map<String, Object> containers = new HashMap<>();
+
+            for (Container cont : request.getChannel().getContainers()) {
+                switch (cont.getType()) {
+                    case CHAR -> {
+                        containers.put(cont.getName(), cont.getCHARData());
+                    }
+                    case BIT -> {
+                        containers.put(cont.getName(), cont.getBITData());
+                    }
                 }
             }
+            message.setBody(containers);
+            return;
         }
-        message.setBody(containers);
+        // Transaction Failed
+        handleTransactionFailed(message,request,iRc,LOGGER);
     }
 }

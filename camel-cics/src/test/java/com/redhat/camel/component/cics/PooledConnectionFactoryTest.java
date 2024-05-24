@@ -17,8 +17,8 @@
 
 package com.redhat.camel.component.cics;
 
-import com.redhat.camel.component.cics.pool.CICSSingleGatewayFactory;
 import com.redhat.camel.component.cics.pool.CICSPooledGatewayFactory;
+import com.redhat.camel.component.cics.pool.CICSSingleGatewayFactory;
 import org.apache.camel.spi.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

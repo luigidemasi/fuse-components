@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
-import static com.redhat.camel.component.cics.CICSConstants.CICS_ABEND_CODE_HEADER;
+import static com.ibm.ctg.client.ECIReturnCodes.ECI_NO_ERROR;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_COMM_AREA_SIZE_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_ECI_REQUEST_TIMEOUT_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_ENCODING_HEADER;
@@ -69,7 +69,7 @@ public class CICSCommAreaEciBinding implements CICSEciBinding {
                 luw,
                 extended);
 
-        if(eciRequestTimeout != null) {
+        if (eciRequestTimeout != null) {
             request.setECITimeout(eciRequestTimeout);
         }
         return request;
@@ -78,30 +78,17 @@ public class CICSCommAreaEciBinding implements CICSEciBinding {
 
     public void toExchange(ECIRequest request, Exchange exchange, int iRc, CICSConfiguration configuration) throws UnsupportedEncodingException {
         Message message = exchange.getMessage();
-        setResponseHeaders(message,request);
+        setResponseHeaders(message, request);
 
-        if (iRc == 0) {
+        if (iRc == ECI_NO_ERROR) {
             LOGGER.debug("Flow executed successfully");
+            LOGGER.trace("Gateway Flow Exception. Return code number:" + iRc + " Return code String: " + request.getRcString());
+
             message.setBody(request.Commarea);
             return;
         }
 
-        if (request.getCicsRc() == 0) {
-            LOGGER.debug("Gateway Flow Exception. Return code number:" + iRc + " Return code String: " + request.getRcString());
-        } else {
-            message.setHeader(CICS_ABEND_CODE_HEADER, request.Abend_Code);
-            if (request.getCicsRc() == ECIRequest.ECI_ERR_SECURITY_ERROR || (request.Abend_Code != null && request.Abend_Code.equalsIgnoreCase("AEY7"))) {
-                LOGGER.debug("Security Flow Exception. Server is unable to validate user ID or password");
-            } else if (request.getCicsRc() == ECIRequest.ECI_ERR_TRANSACTION_ABEND) {
-                LOGGER.debug("Program Flow Exception. An error was returned from the server. Refer to the abend code for further details. '{}'", request.Abend_Code);
-            } else {
-                LOGGER.debug("Unknown Flow Exception. Return code number: {}. Return code String: {}", iRc, request.getCicsRcString());
-            }
-        }
-
-        //LOG.debug("Flow Result Code '{}' on Gateway {}", iRc);
-        LOGGER.debug("CicsCodes: {}-{}", request.getCicsRc(), request.getCicsRcString());
-        LOGGER.debug("RcCodes: {}-{}", request.getRc(), request.getRcString());
+        handleTransactionFailed(message, request, iRc,LOGGER);
     }
 
 
@@ -116,7 +103,7 @@ public class CICSCommAreaEciBinding implements CICSEciBinding {
             }
         } else if (inputCommArea != null) {
             // Calls local getBytes function to extract byte array in either ASCII or unconverted form.
-            byteCommArea = getBytes(inputCommArea,encoding);
+            byteCommArea = getBytes(inputCommArea, encoding);
         } else {
             byteCommArea = new byte[commAreaSize];
         }

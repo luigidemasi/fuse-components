@@ -1,6 +1,7 @@
 package com.redhat.camel.component.cics;
 
-import com.ibm.ctg.client.Channel;import com.ibm.ctg.client.Container;
+import com.ibm.ctg.client.Channel;
+import com.ibm.ctg.client.Container;
 import com.ibm.ctg.client.ECIRequest;
 import com.redhat.camel.component.cics.binding.CICSChannelEciBinding;
 import org.apache.camel.Exchange;
@@ -13,17 +14,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ibm.ctg.client.Container.ContainerType.*;
-import static com.ibm.ctg.client.ECIRequest.*;
+import static com.ibm.ctg.client.Container.ContainerType.BIT;
+import static com.ibm.ctg.client.Container.ContainerType.CHAR;
+import static com.ibm.ctg.client.ECIRequest.ECI_LUW_NEW;
+import static com.ibm.ctg.client.ECIRequest.ECI_NO_ERROR;
 import static com.ibm.ctg.client.ECIRequest.ECI_NO_EXTEND;
+import static com.ibm.ctg.client.ECIRequest.ECI_SYNC;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_CHANNEL_NAME_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_CONTAINER_NAME_HEADER;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_EXTEND_MODE_HEADER;import static com.redhat.camel.component.cics.CICSConstants.CICS_LUW_TOKEN_HEADER;import static com.redhat.camel.component.cics.CICSConstants.CICS_PASSWORD_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_EXTEND_MODE_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_LUW_TOKEN_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_PASSWORD_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_PROGRAM_NAME_HEADER;
-import static com.redhat.camel.component.cics.CICSConstants.CICS_RETURN_CODE_HEADER;import static com.redhat.camel.component.cics.CICSConstants.CICS_SERVER_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_RETURN_CODE_HEADER;
+import static com.redhat.camel.component.cics.CICSConstants.CICS_SERVER_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_TRANSACTION_ID_HEADER;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_USER_ID_HEADER;
-import static org.junit.jupiter.api.Assertions.assertEquals;import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CICSChannelEciBindingTest extends CamelTestSupport {
 
@@ -130,10 +138,10 @@ public class CICSChannelEciBindingTest extends CamelTestSupport {
                 ECI_NO_EXTEND,   //ECI extend mode
                 ECI_LUW_NEW      //ECI LUW token
         );
-
+        request.Cics_Rc = ECI_NO_ERROR;
         assertTrue(request.hasChannel());
         Exchange exchange = new DefaultExchange(context);
-        binding.toExchange(request, exchange, 0, new CICSConfiguration());
+        binding.toExchange(request, exchange, ECI_NO_ERROR, new CICSConfiguration());
 
         Message message = exchange.getMessage();
         assertEquals(ECI_NO_ERROR, message.getHeader(CICS_RETURN_CODE_HEADER, Integer.class));
@@ -146,8 +154,6 @@ public class CICSChannelEciBindingTest extends CamelTestSupport {
 
         assertEquals(inputData, containers.get("INPUT_DATA"));
         assertEquals(inputByteData, containers.get("INPUT_BYTE_DATA"));
-
-
     }
 
 }
