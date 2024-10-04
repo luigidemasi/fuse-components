@@ -24,10 +24,14 @@ public interface CICSConstants {
     String CICS_DEFAULT_SERVER_HOST       = "localhost";
     String CICS_DEFAULT_ENCODING          = "Cp1145";
     int    CICS_DEFAULT_SOCKET_TIMEOUT    = 0;
-    short CICS_DEFAULT_ECI_TIMEOUT        = 0;
+    short  CICS_DEFAULT_ECI_TIMEOUT       = 0;
 
     /** TCP Protocol */
     String GW_PROTOCOL_TCP = "tcp";
+
+    String GW_PROTOCOL_SSL = "ssl";
+
+    String GW_PROTOCOL_LOCAL = "local";
 
     // INTERFACES
     String CICS_ECI_INTERFACE_TYPE = "eci";

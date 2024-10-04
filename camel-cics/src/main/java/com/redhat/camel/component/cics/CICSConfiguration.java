@@ -15,7 +15,6 @@
  */
 package com.redhat.camel.component.cics;
 
-import com.ibm.ctg.client.JavaGateway;
 import com.redhat.camel.component.cics.binding.CICSChannelEciBinding;
 import com.redhat.camel.component.cics.binding.CICSCommAreaEciBinding;
 import com.redhat.camel.component.cics.pool.CICSGatewayFactory;
@@ -32,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.ibm.ctg.client.JavaGateway.SSL_PROP_KEYRING_CLASS;
+import static com.ibm.ctg.client.JavaGateway.SSL_PROP_KEYRING_PW;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_ECI_TIMEOUT;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_ENCODING;
 import static com.redhat.camel.component.cics.CICSConstants.CICS_DEFAULT_INTERFACE_TYPE;
@@ -88,8 +89,10 @@ public class CICSConfiguration implements Cloneable {
     @UriParam(description = "Encoding to convert COMMAREA data to before sending.", defaultValue = CICS_DEFAULT_ENCODING)
     private String encoding = CICS_DEFAULT_ENCODING; // "Cp285";
 
-    @UriParam(description = "The socket connection timeout", label = "advanced", defaultValue = CICS_DEFAULT_SOCKET_TIMEOUT + "")
-    private int socketConnectionTimeout;
+    @UriParam(description = "The socket connection timeout.", label = "advanced", defaultValue = CICS_DEFAULT_SOCKET_TIMEOUT + "")
+    private int socketConnectionTimeout = CICS_DEFAULT_SOCKET_TIMEOUT;
+    @UriParam(description = "When a JavaGateway instance connects to a remote Gateway, an initial flow takes place." , defaultValue = "false" )
+    private Boolean initialFlow = Boolean.FALSE;
 
     @Metadata
     @UriParam(defaultValue = CICS_DEFAULT_ECI_TIMEOUT + "",
@@ -103,9 +106,9 @@ public class CICSConfiguration implements Cloneable {
 
     @Metadata
     @UriParam(defaultValue = GW_PROTOCOL_TCP, description = "the protocol that this component will use to connect to the CICS Transaction Gateway.")
-    private String protocol;
+    private String protocol = GW_PROTOCOL_TCP;
 
-    @Metadata
+    @Metadata(autowired = true)
     @UriParam(description = "The connection factory to be use")
     private CICSGatewayFactory gatewayFactory;
 
@@ -153,17 +156,17 @@ public class CICSConfiguration implements Cloneable {
     public CICSGatewayFactory getOrCreateGatewayFactory() {
         if (this.gatewayFactory == null) {
             CICSSingleGatewayFactory newGatewayFactory = new CICSSingleGatewayFactory();
-            newGatewayFactory.setProtocol(GW_PROTOCOL_TCP);
+            newGatewayFactory.setProtocol(protocol);
             newGatewayFactory.setHost(host);
             newGatewayFactory.setPort(port);
-            newGatewayFactory.setInitialFlow(false);
+            newGatewayFactory.setInitialFlow(initialFlow);
             newGatewayFactory.setSocketConnectionTimeout(socketConnectionTimeout);
             Properties properties = new Properties();
 
             if (sslKeyring != null) {
-                properties.setProperty(JavaGateway.SSL_PROP_KEYRING_CLASS, sslKeyring);
+                properties.setProperty(SSL_PROP_KEYRING_CLASS, sslKeyring);
                 if (sslPassword != null) {
-                    properties.setProperty(JavaGateway.SSL_PROP_KEYRING_PW, sslPassword);
+                    properties.setProperty(SSL_PROP_KEYRING_PW, sslPassword);
                 }
             }
             newGatewayFactory.setProtocolProperties(properties);
@@ -195,7 +198,7 @@ public class CICSConfiguration implements Cloneable {
         if (split.length > 0) {
             interfaceType = split[0];
             if (interfaceType != null && !interfaceType.trim().equalsIgnoreCase(CICS_ECI_INTERFACE_TYPE)){
-                throw new IllegalArgumentException("Interface "+interfaceType+" not supported");
+                throw new IllegalArgumentException("Interface " + interfaceType + " not supported");
             } else{
                 this.interfaceType = interfaceType;
             }
@@ -322,5 +325,13 @@ public class CICSConfiguration implements Cloneable {
 
     public void setDataExchangeType(CICSDataExchangeType dataExchangeType) {
         this.dataExchangeType = dataExchangeType;
+    }
+
+    public Boolean getInitialFlow() {
+        return initialFlow;
+    }
+
+    public void setInitialFlow(Boolean initialFlow) {
+        this.initialFlow = initialFlow;
     }
 }
