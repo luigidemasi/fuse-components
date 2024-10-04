@@ -16,6 +16,7 @@
  */
 package com.redhat.camel.component.cics;
 
+import com.redhat.camel.component.cics.pool.CICSGatewayFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.spi.Metadata;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * CICS component to invoke programs running on CICS Transaction Gateway systems.
@@ -84,6 +86,21 @@ public class CICSComponent extends DefaultComponent {
      */
     public void setConfiguration(CICSConfiguration configuration) {
         this.configuration = configuration.copy();
+    }
+
+
+    @Override
+    protected void doInit() throws Exception {
+        if (configuration.getGatewayFactory() == null){
+            Set<CICSGatewayFactory> beans = getCamelContext().getRegistry().findByType(CICSGatewayFactory.class);
+            if (beans.size() == 1) {
+                CICSGatewayFactory gf = beans.iterator().next();
+                configuration.setGatewayFactory(gf);
+            } else if (beans.size() > 1 ) {
+                LOGGER.debug("Cannot autowire CICSGatewayFactory as {} instances found in registry.", beans.size());
+            }
+        }
+        super.doInit();
     }
 
 }
