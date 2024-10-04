@@ -33,6 +33,8 @@ public class CICSEndpointConfigurer extends PropertyConfigurerSupport implements
         case "gatewayfactory":
         case "gatewayFactory": target.getConfiguration().setGatewayFactory(property(camelContext, com.redhat.camel.component.cics.pool.CICSGatewayFactory.class, value)); return true;
         case "host": target.getConfiguration().setHost(property(camelContext, java.lang.String.class, value)); return true;
+        case "initialflow":
+        case "initialFlow": target.getConfiguration().setInitialFlow(property(camelContext, java.lang.Boolean.class, value)); return true;
         case "lazystartproducer":
         case "lazyStartProducer": target.setLazyStartProducer(property(camelContext, boolean.class, value)); return true;
         case "password": target.getConfiguration().setPassword(property(camelContext, java.lang.String.class, value)); return true;
@@ -52,6 +54,11 @@ public class CICSEndpointConfigurer extends PropertyConfigurerSupport implements
     }
 
     @Override
+    public String[] getAutowiredNames() {
+        return new String[]{"gatewayFactory"};
+    }
+
+    @Override
     public Class<?> getOptionType(String name, boolean ignoreCase) {
         switch (ignoreCase ? name.toLowerCase() : name) {
         case "ctgdebug":
@@ -64,6 +71,8 @@ public class CICSEndpointConfigurer extends PropertyConfigurerSupport implements
         case "gatewayfactory":
         case "gatewayFactory": return com.redhat.camel.component.cics.pool.CICSGatewayFactory.class;
         case "host": return java.lang.String.class;
+        case "initialflow":
+        case "initialFlow": return java.lang.Boolean.class;
         case "lazystartproducer":
         case "lazyStartProducer": return boolean.class;
         case "password": return java.lang.String.class;
@@ -96,6 +105,8 @@ public class CICSEndpointConfigurer extends PropertyConfigurerSupport implements
         case "gatewayfactory":
         case "gatewayFactory": return target.getConfiguration().getGatewayFactory();
         case "host": return target.getConfiguration().getHost();
+        case "initialflow":
+        case "initialFlow": return target.getConfiguration().getInitialFlow();
         case "lazystartproducer":
         case "lazyStartProducer": return target.isLazyStartProducer();
         case "password": return target.getConfiguration().getPassword();

@@ -43,6 +43,8 @@ public class CICSComponentConfigurer extends PropertyConfigurerSupport implement
         case "gatewayfactory":
         case "gatewayFactory": getOrCreateConfiguration(target).setGatewayFactory(property(camelContext, com.redhat.camel.component.cics.pool.CICSGatewayFactory.class, value)); return true;
         case "host": getOrCreateConfiguration(target).setHost(property(camelContext, java.lang.String.class, value)); return true;
+        case "initialflow":
+        case "initialFlow": getOrCreateConfiguration(target).setInitialFlow(property(camelContext, java.lang.Boolean.class, value)); return true;
         case "lazystartproducer":
         case "lazyStartProducer": target.setLazyStartProducer(property(camelContext, boolean.class, value)); return true;
         case "password": getOrCreateConfiguration(target).setPassword(property(camelContext, java.lang.String.class, value)); return true;
@@ -63,7 +65,7 @@ public class CICSComponentConfigurer extends PropertyConfigurerSupport implement
 
     @Override
     public String[] getAutowiredNames() {
-        return new String[]{"configuration"};
+        return new String[]{"configuration", "gatewayFactory"};
     }
 
     @Override
@@ -82,6 +84,8 @@ public class CICSComponentConfigurer extends PropertyConfigurerSupport implement
         case "gatewayfactory":
         case "gatewayFactory": return com.redhat.camel.component.cics.pool.CICSGatewayFactory.class;
         case "host": return java.lang.String.class;
+        case "initialflow":
+        case "initialFlow": return java.lang.Boolean.class;
         case "lazystartproducer":
         case "lazyStartProducer": return boolean.class;
         case "password": return java.lang.String.class;
@@ -117,6 +121,8 @@ public class CICSComponentConfigurer extends PropertyConfigurerSupport implement
         case "gatewayfactory":
         case "gatewayFactory": return getOrCreateConfiguration(target).getGatewayFactory();
         case "host": return getOrCreateConfiguration(target).getHost();
+        case "initialflow":
+        case "initialFlow": return getOrCreateConfiguration(target).getInitialFlow();
         case "lazystartproducer":
         case "lazyStartProducer": return target.isLazyStartProducer();
         case "password": return getOrCreateConfiguration(target).getPassword();
