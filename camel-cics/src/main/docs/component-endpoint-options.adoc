@@ -32,6 +32,8 @@ The {doctitle} component supports 17 options, which are listed below.
 | socketConnectionTimeout | The socket connection timeout                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |              | int
 | password                | Password to use for authentication                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |              | java.lang.String
 | userId                  | User ID to use for authentication                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |              | java.lang.String
+| initialFlow             | When a JavaGateway instance connects to a remote Gateway, an initial flow takes place | false | java.lang.Boolean
+
 |===
 
 
@@ -82,4 +84,5 @@ Enum value: +
 | socketConnectionTimeout | The socket connection timeout |              | int
 | password                | Password to use for authentication |              | java.lang.String
 | userId                  | User ID to use for authentication  |              | java.lang.String
+| initialFlow             | When a JavaGateway instance connects to a remote Gateway, an initial flow takes place | false | java.lang.Boolean
 |===
