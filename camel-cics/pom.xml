@@ -54,11 +54,13 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core-model</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- CTG v.9.2 -->
